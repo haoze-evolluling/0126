@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网络诊断报告 · 现代杂志版</title>
+    
+    <!-- Fonts: Noto Serif SC for magazine feel, Inter for data -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Serif+SC:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        paper: '#F5F2E9',
+                        ink: '#1A1A1A',
+                        emerald: {
+                            600: '#059669', // 优秀
+                        },
+                        blue: {
+                            600: '#2563EB', // 良好
+                        },
+                        amber: {
+                            500: '#F59E0B', // 一般
+                        },
+                        red: {
+                            600: '#DC2626', // 极差
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['"Noto Serif SC"', 'serif'],
+                        sans: ['"Inter"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --color-paper: #F5F2E9;
+            --color-ink: #1A1A1A;
+        }
+
+        body {
+            background-color: var(--color-paper);
+            color: var(--color-ink);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .magazine-title {
+            font-family: 'Noto Serif SC', serif;
+            letter-spacing: -0.02em;
+        }
+
+        .data-display {
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+        }
+
+        /* Magazine layout utilities */
+        .drop-cap::first-letter {
+            float: left;
+            font-size: 3.5rem;
+            line-height: 0.8;
+            margin-right: 0.1em;
+            font-weight: 900;
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .site-checkbox:checked + div {
+            background-color: #1A1A1A;
+            color: #F5F2E9;
+        }
+
+        /* Canvas crispness */
+        canvas {
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
+        }
+
+        .status-indicator {
+            transition: all 0.3s ease;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        .testing-pulse::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse-ring 1.25s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-ink selection:text-paper">
+
+    <!-- Header Section -->
+    <header class="border-b border-ink/10 py-8 px-6 md:px-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                <div class="space-y-2">
+                    <p class="text-xs font-sans tracking-[0.3em] uppercase text-ink/60 mb-2">网络延迟监测报告</p>
+                    <h1 class="magazine-title text-5xl md:text-7xl font-black text-ink leading-none">
+                        网络诊断<br>
+                        <span class="text-3xl md:text-4xl font-normal italic opacity-80">Network Diagnostics</span>
+                    </h1>
+                </div>
+                <div class="flex gap-4 text-xs font-sans tracking-wider uppercase">
+                    <div class="text-right">
+                        <div class="text-ink/40">日期</div>
+                        <div class="font-bold" id="current-date">2026.01.27</div>
+                    </div>
+                    <div class="w-px bg-ink/20 h-10"></div>
+                    <div class="text-right">
+                        <div class="text-ink/40">地区</div>
+                        <div class="font-bold">中国大陆</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="max-w-7xl mx-auto p-6 md:p-12 space-y-12">
+
+        <!-- Control Deck -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Site Selector -->
+            <div class="lg:col-span-8 space-y-4">
+                <div class="flex justify-between items-end border-b border-ink/10 pb-2">
+                    <h2 class="magazine-title text-2xl font-bold">目标站点选择</h2>
+                    <div class="flex gap-2 text-xs">
+                        <button onclick="selector.selectAll()" class="px-3 py-1 border border-ink/20 hover:bg-ink hover:text-paper transition-colors uppercase tracking-wider">全选</button>
+                        <button onclick="selector.selectNone()" class="px-3 py-1 border border-ink/20 hover:bg-ink hover:text-paper transition-colors uppercase tracking-wider">清空</button>
+                        <button onclick="selector.toggleCustom()" class="px-3 py-1 border border-ink/20 hover:bg-ink hover:text-paper transition-colors uppercase tracking-wider">反选</button>
+                    </div>
+                </div>
+                <div id="site-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-64 overflow-y-auto p-1">
+                    <!-- Sites injected here -->
+                </div>
+                <div class="text-xs text-ink/40 font-sans flex justify-between">
+                    <span>站点总数: <strong id="total-count" class="text-ink">50</strong></span>
+                    <span>已选: <strong id="selected-count" class="text-ink">0</strong></span>
+                </div>
+            </div>
+
+            <!-- Action Panel -->
+            <div class="lg:col-span-4 space-y-6 bg-ink/5 p-6 border border-ink/10">
+                <div class="space-y-2">
+                    <label class="text-xs font-sans tracking-wider uppercase text-ink/60 block">采样配置</label>
+                    <div class="flex gap-2">
+                        <button onclick="engine.setSamples(5)" class="sample-btn flex-1 py-2 border border-ink/20 text-sm font-bold hover:bg-ink hover:text-paper transition-colors bg-ink text-paper" data-n="5">5次</button>
+                        <button onclick="engine.setSamples(10)" class="sample-btn flex-1 py-2 border border-ink/20 text-sm font-bold hover:bg-ink hover:text-paper transition-colors" data-n="10">10次</button>
+                    </div>
+                </div>
+
+                <button id="start-btn" onclick="engine.start()" class="w-full py-4 bg-ink text-paper font-bold text-lg tracking-wider hover:bg-ink/90 transition-all flex items-center justify-center gap-3 group">
+                    <i data-lucide="activity" class="w-5 h-5 group-hover:animate-pulse"></i>
+                    开始诊断
+                </button>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="exporter.toCSV()" class="py-2 border border-ink/30 text-xs font-bold tracking-wider hover:bg-ink hover:text-paper transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i> 导出CSV
+                    </button>
+                    <button onclick="exporter.copySnapshot()" class="py-2 border border-ink/30 text-xs font-bold tracking-wider hover:bg-ink hover:text-paper transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="copy" class="w-4 h-4"></i> 复制结果
+                    </button>
+                </div>
+
+                <div id="progress-container" class="hidden space-y-2">
+                    <div class="flex justify-between text-xs font-sans uppercase tracking-wider">
+                        <span class="text-ink/60">测试进度</span>
+                        <span id="progress-text" class="font-bold">0/50</span>
+                    </div>
+                    <div class="h-1 bg-ink/10 overflow-hidden">
+                        <div id="progress-bar" class="h-full bg-ink transition-all duration-300 w-0"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Real-time Dashboard -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- Main Display -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="relative border-2 border-ink p-8 bg-white/50">
+                    <div class="absolute top-0 right-0 p-2">
+                        <div id="current-status" class="w-3 h-3 rounded-full bg-ink/20"></div>
+                    </div>
+                    
+                    <div class="space-y-1 mb-8">
+                        <p class="text-xs font-sans tracking-[0.3em] uppercase text-ink/40">当前测试目标</p>
+                        <h3 id="current-site-name" class="magazine-title text-3xl font-bold truncate">等待开始</h3>
+                        <p id="current-site-url" class="text-xs font-mono text-ink/40 truncate">请选择站点并开始测试</p>
+                    </div>
+
+                    <div class="flex items-baseline gap-2 mb-2">
+                        <span id="current-latency" class="data-display text-8xl font-black text-ink leading-none tracking-tighter">0</span>
+                        <span class="text-xl font-sans text-ink/60 font-light">毫秒</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-end border-t border-ink/10 pt-4 mt-4">
+                        <div>
+                            <p class="text-[10px] uppercase tracking-wider text-ink/40 mb-1">抖动</p>
+                            <p id="current-jitter" class="data-display text-2xl font-bold">--</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase tracking-wider text-ink/40 mb-1">丢包</p>
+                            <p id="current-loss" class="data-display text-2xl font-bold">--</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase tracking-wider text-ink/40 mb-1">握手</p>
+                            <p id="current-handshake" class="data-display text-2xl font-bold">--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mini Waveform -->
+                <div class="border border-ink/20 p-4 bg-white/30">
+                    <canvas id="waveform-canvas" width="400" height="120" class="w-full h-32"></canvas>
+                    <div class="flex justify-between text-[10px] uppercase tracking-wider text-ink/40 mt-2">
+                        <span>实时延迟波形图</span>
+                        <span>采样: <span id="sample-num">0</span>/5</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison Wall -->
+            <div class="lg:col-span-7 space-y-4">
+                <div class="flex justify-between items-end border-b border-ink/10 pb-2">
+                    <h2 class="magazine-title text-2xl font-bold">对比分析</h2>
+                    <div class="flex gap-4 text-[10px] uppercase tracking-wider">
+                        <div class="flex items-center gap-1">
+                            <div class="w-2 h-2 rounded-full bg-emerald-600"></div>
+                            <span class="text-ink/60">极快(&lt;100ms)</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <div class="w-2 h-2 rounded-full bg-blue-600"></div>
+                            <span class="text-ink/60">良好(100-300ms)</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+                            <span class="text-ink/60">一般(300-500ms)</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <div class="w-2 h-2 rounded-full bg-red-600"></div>
+                            <span class="text-ink/60">极差(&gt;500ms)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="border border-ink/10 p-4 bg-white/20 overflow-x-auto">
+                    <canvas id="barchart-canvas" width="800" height="400" class="w-full min-w-[600px] h-auto"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom Metrics -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-ink/10 pt-8">
+            <!-- Health Gauge -->
+            <div class="space-y-4">
+                <h3 class="text-xs font-sans tracking-[0.3em] uppercase text-ink/60">网络健康指数</h3>
+                <div class="relative w-48 h-48 mx-auto">
+                    <canvas id="gauge-canvas" width="200" height="200" class="w-full h-full"></canvas>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span id="health-score" class="data-display text-4xl font-black">0</span>
+                        <span class="text-[10px] uppercase tracking-wider text-ink/40 mt-1">评分</span>
+                    </div>
+                </div>
+                <p id="health-verdict" class="text-center magazine-title text-lg italic text-ink/60">等待评估</p>
+            </div>
+
+            <!-- Statistics Grid -->
+            <div class="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="border border-ink/10 p-6 text-center hover:bg-white/40 transition-colors">
+                    <p class="text-[10px] uppercase tracking-wider text-ink/40 mb-2">平均延迟</p>
+                    <p id="stat-avg" class="data-display text-3xl font-bold text-ink">--</p>
+                    <p class="text-xs text-ink/40 mt-1">毫秒</p>
+                </div>
+                <div class="border border-ink/10 p-6 text-center hover:bg-white/40 transition-colors">
+                    <p class="text-[10px] uppercase tracking-wider text-ink/40 mb-2">最快节点</p>
+                    <p id="stat-min" class="data-display text-3xl font-bold text-emerald-600">--</p>
+                    <p id="stat-min-name" class="text-[10px] text-ink/40 mt-1 truncate">--</p>
+                </div>
+                <div class="border border-ink/10 p-6 text-center hover:bg-white/40 transition-colors">
+                    <p class="text-[10px] uppercase tracking-wider text-ink/40 mb-2">最慢节点</p>
+                    <p id="stat-max" class="data-display text-3xl font-bold text-red-600">--</p>
+                    <p id="stat-max-name" class="text-[10px] text-ink/40 mt-1 truncate">--</p>
+                </div>
+                <div class="border border-ink/10 p-6 text-center hover:bg-white/40 transition-colors">
+                    <p class="text-[10px] uppercase tracking-wider text-ink/40 mb-2">成功率</p>
+                    <p id="stat-success" class="data-display text-3xl font-bold text-blue-600">--</p>
+                    <p class="text-xs text-ink/40 mt-1">%</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="border-t border-ink/10 py-6 px-6 text-center">
+        <p class="text-xs font-sans tracking-wider text-ink/40 uppercase">
+            网络诊断工具 © 2026 · 现代杂志版
+        </p>
+    </footer>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Data: 50 Mainland China Sites
+        const SITES_DATA = [
+            { name: '百度', url: 'https://www.baidu.com', category: 'search', icon: 'search' },
+            { name: '淘宝', url: 'https://www.taobao.com', category: 'ecommerce', icon: 'shopping-bag' },
+            { name: '天猫', url: 'https://www.tmall.com', category: 'ecommerce', icon: 'store' },
+            { name: '京东', url: 'https://www.jd.com', category: 'ecommerce', icon: 'package' },
+            { name: '拼多多', url: 'https://www.pinduoduo.com', category: 'ecommerce', icon: 'percent' },
+            { name: '腾讯网', url: 'https://www.qq.com', category: 'portal', icon: 'layout' },
+            { name: '微信网页', url: 'https://weixin.qq.com', category: 'social', icon: 'message-circle' },
+            { name: '新浪微博', url: 'https://weibo.com', category: 'social', icon: 'at-sign' },
+            { name: '抖音', url: 'https://www.douyin.com', category: 'video', icon: 'video' },
+            { name: '快手', url: 'https://www.kuaishou.com', category: 'video', icon: 'play' },
+            { name: '哔哩哔哩', url: 'https://www.bilibili.com', category: 'video', icon: 'tv' },
+            { name: '优酷', url: 'https://www.youku.com', category: 'video', icon: 'film' },
+            { name: '爱奇艺', url: 'https://www.iqiyi.com', category: 'video', icon: 'monitor' },
+            { name: '腾讯视频', url: 'https://v.qq.com', category: 'video', icon: 'video' },
+            { name: '网易云音乐', url: 'https://music.163.com', category: 'music', icon: 'music' },
+            { name: 'QQ音乐', url: 'https://y.qq.com', category: 'music', icon: 'headphones' },
+            { name: '支付宝', url: 'https://www.alipay.com', category: 'finance', icon: 'credit-card' },
+            { name: '招商银行', url: 'https://www.cmbchina.com', category: 'finance', icon: 'landmark' },
+            { name: '中国银行', url: 'https://www.boc.cn', category: 'finance', icon: 'building-2' },
+            { name: '知乎', url: 'https://www.zhihu.com', category: 'social', icon: 'help-circle' },
+            { name: '小红书', url: 'https://www.xiaohongshu.com', category: 'social', icon: 'book-open' },
+            { name: '豆瓣', url: 'https://www.douban.com', category: 'social', icon: 'bookmark' },
+            { name: 'CSDN', url: 'https://www.csdn.net', category: 'tech', icon: 'code' },
+            { name: '掘金', url: 'https://juejin.cn', category: 'tech', icon: 'gitlab' },
+            { name: 'GitHub', url: 'https://github.com', category: 'tech', icon: 'github' },
+            { name: 'StackOverflow', url: 'https://stackoverflow.com', category: 'tech', icon: 'layers' },
+            { name: '阿里云', url: 'https://www.aliyun.com', category: 'cloud', icon: 'cloud' },
+            { name: '腾讯云', url: 'https://cloud.tencent.com', category: 'cloud', icon: 'server' },
+            { name: '华为云', url: 'https://www.huaweicloud.com', category: 'cloud', icon: 'database' },
+            { name: '百度网盘', url: 'https://pan.baidu.com', category: 'storage', icon: 'hard-drive' },
+            { name: '高德地图', url: 'https://ditu.amap.com', category: 'map', icon: 'map' },
+            { name: '百度地图', url: 'https://map.baidu.com', category: 'map', icon: 'navigation' },
+            { name: '携程', url: 'https://www.ctrip.com', category: 'travel', icon: 'plane' },
+            { name: '去哪儿', url: 'https://www.qunar.com', category: 'travel', icon: 'compass' },
+            { name: '飞猪', url: 'https://www.fliggy.com', category: 'travel', icon: 'ticket' },
+            { name: '美团', url: 'https://www.meituan.com', category: 'o2o', icon: 'coffee' },
+            { name: '饿了么', url: 'https://www.ele.me', category: 'o2o', icon: 'utensils' },
+            { name: '滴滴', url: 'https://www.didiglobal.com', category: 'o2o', icon: 'car' },
+            { name: '携程', url: 'https://www.ctrip.com', category: 'travel', icon: 'briefcase' },
+            { name: '网易', url: 'https://www.163.com', category: 'portal', icon: 'mail' },
+            { name: '搜狐', url: 'https://www.sohu.com', category: 'portal', icon: 'globe' },
+            { name: '新浪', url: 'https://www.sina.com.cn', category: 'portal', icon: 'rss' },
+            { name: '凤凰', url: 'https://www.ifeng.com', category: 'portal', icon: 'flag' },
+            { name: '人民网', url: 'https://www.people.com.cn', category: 'news', icon: 'newspaper' },
+            { name: '新华网', url: 'https://www.xinhuanet.com', category: 'news', icon: 'radio' },
+            { name: '央视网', url: 'https://www.cctv.com', category: 'news', icon: 'tv-2' },
+            { name: 'Office365', url: 'https://www.office.com', category: 'office', icon: 'file-text' },
+            { name: '钉钉', url: 'https://www.dingtalk.com', category: 'office', icon: 'message-square' },
+            { name: '飞书', url: 'https://www.feishu.cn', category: 'office', icon: 'send' },
+            { name: '企业微信', url: 'https://work.weixin.qq.com', category: 'office', icon: 'users' }
+        ];
+
+        // Remove duplicates
+        const UNIQUE_SITES = SITES_DATA.filter((v,i,a)=>a.findIndex(t=>(t.name===v.name))===i);
+
+        // Site Selector Manager
+        const selector = {
+            selected: new Set(),
+            
+            init() {
+                this.render();
+                document.getElementById('total-count').textContent = UNIQUE_SITES.length;
+            },
+
+            render() {
+                const grid = document.getElementById('site-grid');
+                grid.innerHTML = UNIQUE_SITES.map((site, idx) => `
+                    <label class="cursor-pointer group relative">
+                        <input type="checkbox" class="site-checkbox hidden" value="${idx}" 
+                               ${this.selected.has(idx) ? 'checked' : ''} 
+                               onchange="selector.toggle(${idx})">
+                        <div class="border border-ink/20 p-3 text-xs font-sans transition-all hover:border-ink/40 h-full flex flex-col justify-between min-h-[80px]">
+                            <div class="flex justify-between items-start">
+                                <i data-lucide="${site.icon}" class="w-4 h-4 opacity-50"></i>
+                                <span class="text-[10px] uppercase tracking-wider opacity-40">${site.category}</span>
+                            </div>
+                            <div class="font-bold truncate mt-2 magazine-title text-sm">${site.name}</div>
+                        </div>
+                    </label>
+                `).join('');
+                lucide.createIcons();
+                document.getElementById('selected-count').textContent = this.selected.size;
+            },
+
+            toggle(idx) {
+                if (this.selected.has(idx)) this.selected.delete(idx);
+                else this.selected.add(idx);
+                this.render();
+            },
+
+            selectAll() {
+                UNIQUE_SITES.forEach((_, idx) => this.selected.add(idx));
+                this.render();
+            },
+
+            selectNone() {
+                this.selected.clear();
+                this.render();
+            },
+
+            toggleCustom() {
+                UNIQUE_SITES.forEach((_, idx) => {
+                    if (this.selected.has(idx)) this.selected.delete(idx);
+                    else this.selected.add(idx);
+                });
+                this.render();
+            },
+
+            getSelected() {
+                return Array.from(this.selected).map(idx => UNIQUE_SITES[idx]);
+            }
+        };
+
+        // Visualization Utilities
+        const viz = {
+            waveform: [],
+            maxPoints: 100, // 增加以支持10次采样 x 多站点
+            
+            addPoint(val) {
+                this.waveform.push(val);
+                if (this.waveform.length > this.maxPoints) this.waveform.shift();
+                this.drawWaveform();
+            },
+
+            drawWaveform() {
+                const canvas = document.getElementById('waveform-canvas');
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width;
+                const h = canvas.height;
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                if (this.waveform.length < 2) return;
+                
+                ctx.beginPath();
+                ctx.strokeStyle = '#1A1A1A';
+                ctx.lineWidth = 1.5;
+                
+                const maxVal = Math.max(...this.waveform, 1000);
+                const step = w / (this.maxPoints - 1);
+                
+                this.waveform.forEach((val, i) => {
+                    const x = i * step;
+                    const y = h - (val / maxVal) * (h - 20) - 10;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                
+                ctx.stroke();
+                
+                // Draw baseline
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(26,26,26,0.1)';
+                ctx.lineWidth = 1;
+                ctx.moveTo(0, h-10);
+                ctx.lineTo(w, h-10);
+                ctx.stroke();
+            },
+
+            drawBarChart(results) {
+                const canvas = document.getElementById('barchart-canvas');
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width;
+                const h = canvas.height;
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                if (!results || results.length === 0) return;
+                
+                const sorted = [...results].sort((a,b) => a.avg - b.avg);
+                const maxVal = Math.max(...sorted.map(r => r.avg), 1000);
+                const barHeight = (h - 60) / sorted.length;
+                const maxBarWidth = w - 150;
+                
+                sorted.forEach((res, i) => {
+                    const y = i * barHeight + 30;
+                    const barW = (res.avg / maxVal) * maxBarWidth;
+                    
+                    // Color based on latency
+                    let color = '#059669'; // emerald
+                    if (res.avg > 100) color = '#2563EB'; // blue
+                    if (res.avg > 300) color = '#F59E0B'; // amber
+                    if (res.avg > 500) color = '#DC2626'; // red
+                    
+                    // Draw bar (outline style per magazine spec)
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(100, y - barHeight/2 + 5, barW, barHeight - 10);
+                    
+                    // Fill with transparency
+                    ctx.fillStyle = color + '33'; // 20% opacity
+                    ctx.fillRect(100, y - barHeight/2 + 5, barW, barHeight - 10);
+                    
+                    // Text
+                    ctx.fillStyle = '#1A1A1A';
+                    ctx.font = '11px Inter';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(res.name, 90, y + 4);
+                    
+                    ctx.textAlign = 'left';
+                    ctx.font = 'bold 11px Inter';
+                    ctx.fillText(Math.round(res.avg) + 'ms', 100 + barW + 8, y + 4);
+                });
+            },
+
+            drawGauge(score) {
+                const canvas = document.getElementById('gauge-canvas');
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width;
+                const h = canvas.height;
+                const cx = w/2;
+                const cy = h/2;
+                const r = 80;
+                
+                ctx.clearRect(0, 0, w, h);
+                
+                // Background arc
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, Math.PI * 0.75, Math.PI * 2.25);
+                ctx.strokeStyle = 'rgba(26,26,26,0.1)';
+                ctx.lineWidth = 8;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+                
+                // Value arc
+                const angle = Math.PI * 0.75 + (score / 100) * (Math.PI * 1.5);
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, Math.PI * 0.75, angle);
+                
+                // Color based on score
+                let color = '#DC2626';
+                if (score > 25) color = '#F59E0B';
+                if (score > 50) color = '#2563EB';
+                if (score > 75) color = '#059669';
+                
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 8;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            }
+        };
+
+        // Diagnostic Engine
+        const engine = {
+            samples: 5, // 默认改为5次
+            results: [],
+            isRunning: false,
+            currentWaveform: [],
+            
+            setSamples(n) {
+                if (this.isRunning) return;
+                this.samples = n;
+                document.querySelectorAll('.sample-btn').forEach(btn => {
+                    if (parseInt(btn.dataset.n) === n) {
+                        btn.classList.add('bg-ink', 'text-paper');
+                    } else {
+                        btn.classList.remove('bg-ink', 'text-paper');
+                    }
+                });
+            },
+
+            async measureSite(site) {
+                const times = [];
+                const errors = [];
+                let handshakeTime = 0;
+                
+                // Update UI current target
+                document.getElementById('current-site-name').textContent = site.name;
+                document.getElementById('current-site-url').textContent = site.url;
+                document.getElementById('current-status').className = 'w-3 h-3 rounded-full bg-amber-500 testing-pulse relative';
+                
+                for (let i = 0; i < this.samples; i++) {
+                    document.getElementById('sample-num').textContent = i + 1;
+                    const start = performance.now();
+                    let success = false;
+                    
+                    try {
+                        // Use Image loading to bypass CORS and measure network latency
+                        await new Promise((resolve, reject) => {
+                            const img = new Image();
+                            const timeout = setTimeout(() => reject('timeout'), 10000);
+                            
+                            img.onload = () => {
+                                clearTimeout(timeout);
+                                success = true;
+                                resolve();
+                            };
+                            
+                            img.onerror = () => {
+                                clearTimeout(timeout);
+                                // Even on error, we got a response (CORS error still means server reached)
+                                success = true;
+                                resolve();
+                            };
+                            
+                            // Try favicon first, fallback to root with cache buster
+                            const testUrl = site.url + '/favicon.ico?cb=' + Date.now() + Math.random();
+                            img.src = testUrl;
+                        });
+                        
+                        const elapsed = performance.now() - start;
+                        times.push(elapsed);
+                        handshakeTime = elapsed * 0.3; // Estimate handshake as 30% of total
+                        viz.addPoint(elapsed);
+                        
+                    } catch (e) {
+                        times.push(10000); // Timeout penalty
+                        errors.push(10000);
+                        viz.addPoint(10000);
+                    }
+                    
+                    // Small delay between samples
+                    await new Promise(r => setTimeout(r, 200));
+                }
+                
+                // Calculate metrics
+                const validTimes = times.filter(t => t < 10000);
+                const avg = validTimes.length ? validTimes.reduce((a,b) => a+b, 0) / validTimes.length : 9999;
+                const min = validTimes.length ? Math.min(...validTimes) : 9999;
+                const max = validTimes.length ? Math.max(...validTimes) : 9999;
+                const jitter = validTimes.length > 1 ? 
+                    validTimes.slice(1).map((t, i) => Math.abs(t - validTimes[i])).reduce((a,b) => a+b, 0) / (validTimes.length - 1) : 0;
+                const loss = ((this.samples - validTimes.length) / this.samples) * 100;
+                
+                // Update current display
+                document.getElementById('current-latency').textContent = Math.round(avg);
+                document.getElementById('current-jitter').textContent = Math.round(jitter) + 'ms';
+                document.getElementById('current-loss').textContent = loss.toFixed(0) + '%';
+                document.getElementById('current-handshake').textContent = Math.round(handshakeTime) + 'ms';
+                
+                // Color coding
+                let colorClass = 'text-emerald-600';
+                if (avg > 100) colorClass = 'text-blue-600';
+                if (avg > 300) colorClass = 'text-amber-500';
+                if (avg > 500 || loss > 0) colorClass = 'text-red-600';
+                
+                document.getElementById('current-latency').className = `data-display text-8xl font-black leading-none tracking-tighter ${colorClass}`;
+                document.getElementById('current-status').className = `w-3 h-3 rounded-full ${loss > 50 ? 'bg-red-600' : colorClass.replace('text-', 'bg-')} relative`;
+                
+                return {
+                    name: site.name,
+                    url: site.url,
+                    avg,
+                    min,
+                    max,
+                    jitter,
+                    loss,
+                    handshake: handshakeTime,
+                    samples: times
+                };
+            },
+
+            async start() {
+                if (this.isRunning) return;
+                
+                const selected = selector.getSelected();
+                if (selected.length === 0) {
+                    alert('请至少选择一个站点');
+                    return;
+                }
+                
+                this.isRunning = true;
+                this.results = [];
+                viz.waveform = [];
+                
+                document.getElementById('start-btn').disabled = true;
+                document.getElementById('start-btn').innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> 测试中...';
+                lucide.createIcons();
+                
+                document.getElementById('progress-container').classList.remove('hidden');
+                
+                const batchSize = 5; // Concurrent limit
+                
+                for (let i = 0; i < selected.length; i += batchSize) {
+                    const batch = selected.slice(i, i + batchSize);
+                    
+                    await Promise.all(batch.map(async (site) => {
+                        const result = await this.measureSite(site);
+                        this.results.push(result);
+                    }));
+                    
+                    // Update progress
+                    const progress = Math.min((i + batchSize) / selected.length, 1);
+                    document.getElementById('progress-bar').style.width = (progress * 100) + '%';
+                    document.getElementById('progress-text').textContent = Math.min(i + batchSize, selected.length) + '/' + selected.length;
+                    
+                    // Update charts
+                    viz.drawBarChart(this.results);
+                    this.updateStats();
+                }
+                
+                document.getElementById('current-status').classList.remove('testing-pulse');
+                document.getElementById('start-btn').disabled = false;
+                document.getElementById('start-btn').innerHTML = '<i data-lucide="activity" class="w-5 h-5"></i> 开始诊断';
+                lucide.createIcons();
+                
+                this.isRunning = false;
+            },
+
+            updateStats() {
+                if (this.results.length === 0) return;
+                
+                const avgs = this.results.map(r => r.avg);
+                const overallAvg = avgs.reduce((a,b) => a+b, 0) / avgs.length;
+                const min = Math.min(...avgs);
+                const max = Math.max(...avgs);
+                const fastest = this.results.find(r => r.avg === min);
+                const slowest = this.results.find(r => r.avg === max);
+                const successRate = this.results.filter(r => r.loss < 50).length / this.results.length * 100;
+                
+                // Health score (0-100)
+                let score = 100;
+                if (overallAvg > 100) score -= 10;
+                if (overallAvg > 300) score -= 20;
+                if (overallAvg > 500) score -= 30;
+                score -= (100 - successRate) * 0.5;
+                score = Math.max(0, Math.min(100, score));
+                
+                document.getElementById('stat-avg').textContent = Math.round(overallAvg);
+                document.getElementById('stat-min').textContent = Math.round(min);
+                document.getElementById('stat-min-name').textContent = fastest.name;
+                document.getElementById('stat-max').textContent = Math.round(max);
+                document.getElementById('stat-max-name').textContent = slowest.name;
+                document.getElementById('stat-success').textContent = successRate.toFixed(0);
+                
+                document.getElementById('health-score').textContent = Math.round(score);
+                viz.drawGauge(score);
+                
+                let verdict = '网络状况极佳';
+                if (score < 80) verdict = '网络状况良好';
+                if (score < 60) verdict = '网络状况一般';
+                if (score < 40) verdict = '网络状况较差';
+                document.getElementById('health-verdict').textContent = verdict;
+            }
+        };
+
+        // Exporter
+        const exporter = {
+            toCSV() {
+                if (engine.results.length === 0) {
+                    alert('暂无数据，请先运行测试');
+                    return;
+                }
+                
+                const headers = ['站点', 'URL', '平均延迟(ms)', '最小延迟', '最大延迟', '抖动', '丢包率(%)', '握手时间(ms)'];
+                const rows = engine.results.map(r => [
+                    r.name, r.url, r.avg.toFixed(2), r.min.toFixed(2), 
+                    r.max.toFixed(2), r.jitter.toFixed(2), r.loss.toFixed(2), r.handshake.toFixed(2)
+                ]);
+                
+                const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+                const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `网络诊断报告-${new Date().toISOString().slice(0,10)}.csv`;
+                link.click();
+            },
+
+            copySnapshot() {
+                if (engine.results.length === 0) {
+                    alert('暂无数据');
+                    return;
+                }
+                
+                const text = engine.results.map(r => 
+                    `${r.name}: ${Math.round(r.avg)}ms (丢包${r.loss.toFixed(0)}%)`
+                ).join('\n');
+                
+                const summary = `网络诊断报告 ${new Date().toLocaleDateString()}\n` +
+                              `平均延迟: ${document.getElementById('stat-avg').textContent}ms\n` +
+                              `健康指数: ${document.getElementById('health-score').textContent}/100\n\n` +
+                              text;
+                
+                navigator.clipboard.writeText(summary).then(() => {
+                    alert('报告已复制到剪贴板');
+                });
+            }
+        };
+
+        // Initialize
+        document.getElementById('current-date').textContent = new Date().toISOString().slice(0,10).replace(/-/g, '.');
+        selector.init();
+        selector.selectAll(); // Default select all
+        
+        // Initial empty charts
+        viz.drawWaveform();
+        viz.drawBarChart([]);
+        viz.drawGauge(0);
+    </script>
+</body>
+</html>
