@@ -52,51 +52,63 @@ const viz = {
         ctx.stroke();
     },
 
-    drawBarChart(results) {
-        const canvas = document.getElementById('barchart-canvas');
-        if (!canvas || !results || results.length === 0) return;
-        
-        const ctx = canvas.getContext('2d');
-        const w = canvas.width;
-        const h = canvas.height;
-        
-        ctx.clearRect(0, 0, w, h);
-        
-        const sorted = [...results].sort((a, b) => a.avg - b.avg);
-        const maxVal = Math.max(...sorted.map(r => r.avg), 1000);
-        const barHeight = (h - 60) / sorted.length;
-        const maxBarWidth = w - 150;
-        
-        sorted.forEach((res, i) => {
-            const y = i * barHeight + 30;
-            const barW = (res.avg / maxVal) * maxBarWidth;
-            
-            // Color based on latency
-            let color = '#059669'; // emerald
-            if (res.avg > 100) color = '#2563EB'; // blue
-            if (res.avg > 300) color = '#F59E0B'; // amber
-            if (res.avg > 500) color = '#DC2626'; // red
-            
-            // Draw bar (outline style per magazine spec)
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 2;
-            ctx.strokeRect(100, y - barHeight / 2 + 5, barW, barHeight - 10);
-            
-            // Fill with transparency
-            ctx.fillStyle = color + '33'; // 20% opacity
-            ctx.fillRect(100, y - barHeight / 2 + 5, barW, barHeight - 10);
-            
-            // Text
-            ctx.fillStyle = '#1A1A1A';
-            ctx.font = '11px Inter, sans-serif';
-            ctx.textAlign = 'right';
-            ctx.fillText(res.name, 90, y + 4);
-            
-            ctx.textAlign = 'left';
-            ctx.font = 'bold 11px Inter, sans-serif';
-            ctx.fillText(Math.round(res.avg) + 'ms', 100 + barW + 8, y + 4);
-        });
-    },
+  drawBarChart(results) {
+    const canvas = document.getElementById('barchart-canvas');
+    if (!canvas || !results || results.length === 0) return;
+
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    
+    // 固定柱状图高度，根据数据量计算 canvas 总高度
+    const fixedBarHeight = 40; // 每个柱状图固定高度
+    const barSpacing = 16; // 柱状图间距
+    const topPadding = 40; // 顶部留白
+    const bottomPadding = 20; // 底部留白
+    const h = results.length * (fixedBarHeight + barSpacing) + topPadding + bottomPadding;
+    
+    // 设置 canvas 高度
+    canvas.height = h;
+    canvas.style.height = h + 'px';
+    
+    ctx.clearRect(0, 0, w, h);
+
+    const sorted = [...results].sort((a, b) => a.avg - b.avg);
+    const maxVal = Math.max(...sorted.map(r => r.avg), 1000);
+    const maxBarWidth = w - 160; // 右侧留出更多空间显示数值
+
+    sorted.forEach((res, i) => {
+      const y = i * (fixedBarHeight + barSpacing) + topPadding + fixedBarHeight / 2;
+      const barW = (res.avg / maxVal) * maxBarWidth;
+
+      // Color based on latency
+      let color = '#059669'; // emerald
+      if (res.avg > 100) color = '#2563EB'; // blue
+      if (res.avg > 300) color = '#F59E0B'; // amber
+      if (res.avg > 500) color = '#DC2626'; // red
+
+      // Draw bar (outline style per magazine spec)
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(120, y - fixedBarHeight / 2 + 4, barW, fixedBarHeight - 8);
+
+      // Fill with transparency
+      ctx.fillStyle = color + '33'; // 20% opacity
+      ctx.fillRect(120, y - fixedBarHeight / 2 + 4, barW, fixedBarHeight - 8);
+
+      // Site name - 右对齐，更清晰
+      ctx.fillStyle = '#1A1A1A';
+      ctx.font = '600 13px Inter, "Noto Sans SC", sans-serif';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(res.name, 110, y);
+
+      // Latency value - 加粗显示
+      ctx.textAlign = 'left';
+      ctx.font = 'bold 13px Inter, "Noto Sans SC", sans-serif';
+      ctx.fillStyle = color;
+      ctx.fillText(Math.round(res.avg) + ' ms', 120 + barW + 12, y);
+    });
+  },
 
     drawGauge(score) {
         const canvas = document.getElementById('gauge-canvas');

@@ -49,8 +49,34 @@ body {
 
 /* Canvas crispness */
 canvas {
-    image-rendering: crisp-edges;
-    image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+/* Bar chart scroll container */
+.bar-chart-container {
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.bar-chart-container::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.bar-chart-container::-webkit-scrollbar-track {
+  background: rgba(26, 26, 26, 0.05);
+  border-radius: 3px;
+}
+
+.bar-chart-container::-webkit-scrollbar-thumb {
+  background: rgba(26, 26, 26, 0.3);
+  border-radius: 3px;
+}
+
+.bar-chart-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(26, 26, 26, 0.5);
 }
 
 .status-indicator {

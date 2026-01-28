@@ -175,33 +175,33 @@
                 </div>
             </div>
 
-            <!-- Comparison Wall -->
-            <div class="lg:col-span-7 space-y-4">
-                <div class="flex justify-between items-end border-b border-ink/10 pb-2">
-                    <h2 class="magazine-title text-2xl font-bold">对比分析</h2>
-                    <div class="flex gap-4 text-[10px] uppercase tracking-wider">
-                        <div class="flex items-center gap-1">
-                            <div class="w-2 h-2 rounded-full bg-emerald-600"></div>
-                            <span class="text-ink/60">极快(&lt;100ms)</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <div class="w-2 h-2 rounded-full bg-blue-600"></div>
-                            <span class="text-ink/60">良好(100-300ms)</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <div class="w-2 h-2 rounded-full bg-amber-500"></div>
-                            <span class="text-ink/60">一般(300-500ms)</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <div class="w-2 h-2 rounded-full bg-red-600"></div>
-                            <span class="text-ink/60">极差(&gt;500ms)</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="border border-ink/10 p-4 bg-white/20 overflow-x-auto">
-                    <canvas id="barchart-canvas" width="800" height="400" class="w-full min-w-[600px] h-auto"></canvas>
-                </div>
-            </div>
+    <!-- Comparison Wall -->
+    <div class="lg:col-span-7 space-y-4">
+      <div class="flex justify-between items-end border-b border-ink/10 pb-2">
+        <h2 class="magazine-title text-2xl font-bold">对比分析</h2>
+        <div class="flex gap-4 text-[10px] uppercase tracking-wider">
+          <div class="flex items-center gap-1">
+            <div class="w-2 h-2 rounded-full bg-emerald-600"></div>
+            <span class="text-ink/60">极快(&lt;100ms)</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <div class="w-2 h-2 rounded-full bg-blue-600"></div>
+            <span class="text-ink/60">良好(100-300ms)</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+            <span class="text-ink/60">一般(300-500ms)</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <div class="w-2 h-2 rounded-full bg-red-600"></div>
+            <span class="text-ink/60">极差(&gt;500ms)</span>
+          </div>
+        </div>
+      </div>
+      <div class="border border-ink/10 p-4 bg-white/20 bar-chart-container">
+        <canvas id="barchart-canvas" width="800" height="400" class="w-full min-w-[600px]"></canvas>
+      </div>
+    </div>
         </section>
 
         <!-- Bottom Metrics -->
