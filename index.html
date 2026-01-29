@@ -217,13 +217,16 @@
             </div>
         </section>
 
-        <!-- Section 3: Comparison Wall -->
+        <!-- Section 3: Comparison Wall - 革新设计 -->
         <section class="mb-8">
             <div class="border-2 border-ink">
                 <!-- Section Header -->
                 <div class="border-b-2 border-ink px-6 py-4 bg-ink/5">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <h2 class="magazine-title text-xl font-bold">对比分析</h2>
+                        <div class="flex items-center gap-3">
+                            <h2 class="magazine-title text-xl font-bold">对比分析</h2>
+                            <span id="comparison-count" class="px-3 py-1 text-xs font-bold bg-ink text-paper">0 项</span>
+                        </div>
                         <div class="flex flex-wrap gap-4 text-[10px] uppercase tracking-wider">
                             <div class="flex items-center gap-1">
                                 <div class="w-3 h-3 bg-emerald-600"></div>
@@ -245,11 +248,42 @@
                     </div>
                 </div>
                 
-                <!-- Section Content -->
+                <!-- Section Content - 革新展示 -->
                 <div class="p-6">
-                    <div class="border-2 border-ink">
-                        <div class="p-4 bar-chart-container">
-                            <canvas id="barchart-canvas" width="800" height="400" class="w-full min-w-[600px]"></canvas>
+                    <!-- 统计摘要 -->
+                    <div id="comparison-summary" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 hidden">
+                        <div class="border border-ink/30 p-4 text-center">
+                            <p class="text-[10px] uppercase tracking-wider text-ink/40">最佳性能</p>
+                            <p id="best-site" class="font-bold text-emerald-600 truncate">--</p>
+                        </div>
+                        <div class="border border-ink/30 p-4 text-center">
+                            <p class="text-[10px] uppercase tracking-wider text-ink/40">最差性能</p>
+                            <p id="worst-site" class="font-bold text-red-600 truncate">--</p>
+                        </div>
+                        <div class="border border-ink/30 p-4 text-center">
+                            <p class="text-[10px] uppercase tracking-wider text-ink/40">平均延迟</p>
+                            <p id="avg-latency" class="font-bold">--</p>
+                        </div>
+                        <div class="border border-ink/30 p-4 text-center">
+                            <p class="text-[10px] uppercase tracking-wider text-ink/40">达标率</p>
+                            <p id="pass-rate" class="font-bold">--</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 可视化容器 -->
+                    <div id="comparison-viz" class="comparison-viz-container">
+                        <!-- 骨架屏 -->
+                        <div id="comparison-skeleton" class="comparison-skeleton">
+                            <div class="skeleton-item"></div>
+                            <div class="skeleton-item"></div>
+                            <div class="skeleton-item"></div>
+                            <div class="skeleton-item"></div>
+                            <div class="skeleton-item"></div>
+                        </div>
+                        
+                        <!-- 实际内容 -->
+                        <div id="comparison-grid" class="comparison-grid hidden">
+                            <!-- 动态插入 -->
                         </div>
                     </div>
                 </div>

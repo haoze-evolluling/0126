@@ -232,3 +232,517 @@ main {
 .border-2.border-ink > .border-b-2.px-4 {
     padding: 12px 16px;
 }
+
+/* ========================================
+   对比分析部分革新设计样式
+   ======================================== */
+
+/* 可视化容器 */
+.comparison-viz-container {
+    position: relative;
+    min-height: 200px;
+}
+
+/* 骨架屏样式 */
+.comparison-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.comparison-skeleton .skeleton-item {
+    height: 60px;
+    background: linear-gradient(
+        90deg,
+        rgba(26, 26, 26, 0.05) 25%,
+        rgba(26, 26, 26, 0.1) 50%,
+        rgba(26, 26, 26, 0.05) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border: 1px solid rgba(26, 26, 26, 0.1);
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* 对比网格布局 */
+.comparison-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 420px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.comparison-grid::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.comparison-grid::-webkit-scrollbar-track {
+    background: rgba(26, 26, 26, 0.05);
+}
+
+.comparison-grid::-webkit-scrollbar-thumb {
+    background: rgba(26, 26, 26, 0.3);
+    border-radius: 0;
+}
+
+.comparison-grid::-webkit-scrollbar-thumb:hover {
+    background: rgba(26, 26, 26, 0.5);
+}
+
+/* 对比卡片样式 */
+.comparison-card {
+    display: grid;
+    grid-template-columns: 60px 1fr 120px 80px;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--color-paper);
+    border: 2px solid var(--color-ink);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.comparison-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: currentColor;
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.comparison-card:hover {
+    transform: translateX(4px);
+    box-shadow: 4px 4px 0 var(--color-ink);
+}
+
+.comparison-card:hover::before {
+    transform: scaleY(1);
+}
+
+/* 排名徽章 */
+.comparison-rank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 900;
+    font-size: 18px;
+    border: 2px solid var(--color-ink);
+    background: var(--color-paper);
+}
+
+.comparison-rank.gold {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    border-color: #B8860B;
+    color: #4A3500;
+}
+
+.comparison-rank.silver {
+    background: linear-gradient(135deg, #C0C0C0 0%, #A9A9A9 100%);
+    border-color: #808080;
+    color: #2D2D2D;
+}
+
+.comparison-rank.bronze {
+    background: linear-gradient(135deg, #CD7F32 0%, #B87333 100%);
+    border-color: #8B4513;
+    color: #3D2100;
+}
+
+/* 站点信息 */
+.comparison-site {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.comparison-site-name {
+    font-weight: 700;
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.comparison-site-domain {
+    font-size: 11px;
+    color: var(--color-ink);
+    opacity: 0.5;
+    font-family: 'Inter', monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 延迟进度条区域 */
+.comparison-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.comparison-progress-bar {
+    height: 8px;
+    background: rgba(26, 26, 26, 0.1);
+    border: 1px solid rgba(26, 26, 26, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.comparison-progress-fill {
+    height: 100%;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.comparison-progress-fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4));
+}
+
+.comparison-progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-ink);
+    opacity: 0.6;
+}
+
+/* 延迟数值显示 */
+.comparison-latency {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.comparison-latency-value {
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    font-size: 24px;
+    line-height: 1;
+}
+
+.comparison-latency-unit {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.5;
+}
+
+/* 状态徽章 */
+.comparison-status {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border: 1px solid currentColor;
+}
+
+/* 颜色变体 */
+.comparison-card.excellent {
+    color: #059669;
+}
+
+.comparison-card.excellent .comparison-rank {
+    border-color: #059669;
+}
+
+.comparison-card.good {
+    color: #2563EB;
+}
+
+.comparison-card.good .comparison-rank {
+    border-color: #2563EB;
+}
+
+.comparison-card.average {
+    color: #F59E0B;
+}
+
+.comparison-card.average .comparison-rank {
+    border-color: #F59E0B;
+}
+
+.comparison-card.poor {
+    color: #DC2626;
+}
+
+.comparison-card.poor .comparison-rank {
+    border-color: #DC2626;
+}
+
+/* 详情展开区域 */
+.comparison-details {
+    grid-column: 1 / -1;
+    padding: 16px 20px;
+    background: rgba(26, 26, 26, 0.03);
+    border-top: 1px dashed rgba(26, 26, 26, 0.2);
+    display: none;
+}
+
+.comparison-card.expanded .comparison-details {
+    display: block;
+}
+
+.comparison-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 12px;
+}
+
+.comparison-detail-item {
+    text-align: center;
+    padding: 8px;
+    background: var(--color-paper);
+    border: 1px solid rgba(26, 26, 26, 0.1);
+}
+
+.comparison-detail-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-ink);
+    opacity: 0.5;
+    margin-bottom: 4px;
+}
+
+.comparison-detail-value {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+/* 动画入场效果 */
+.comparison-card {
+    animation: card-enter 0.4s ease forwards;
+    opacity: 0;
+}
+
+@keyframes card-enter {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.comparison-card:nth-child(1) { animation-delay: 0.05s; }
+.comparison-card:nth-child(2) { animation-delay: 0.1s; }
+.comparison-card:nth-child(3) { animation-delay: 0.15s; }
+.comparison-card:nth-child(4) { animation-delay: 0.2s; }
+.comparison-card:nth-child(5) { animation-delay: 0.25s; }
+.comparison-card:nth-child(6) { animation-delay: 0.3s; }
+.comparison-card:nth-child(7) { animation-delay: 0.35s; }
+.comparison-card:nth-child(8) { animation-delay: 0.4s; }
+.comparison-card:nth-child(9) { animation-delay: 0.45s; }
+.comparison-card:nth-child(10) { animation-delay: 0.5s; }
+
+/* 趋势指示器 */
+.comparison-trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.comparison-trend-up {
+    color: #DC2626;
+}
+
+.comparison-trend-down {
+    color: #059669;
+}
+
+.comparison-trend-stable {
+    color: #2563EB;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .comparison-card {
+        grid-template-columns: 48px 1fr;
+        gap: 12px;
+        padding: 12px;
+    }
+    
+    .comparison-rank {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+    
+    .comparison-latency {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 8px;
+        border-top: 1px dashed rgba(26, 26, 26, 0.1);
+    }
+    
+    .comparison-progress {
+        grid-column: 1 / -1;
+        order: 3;
+    }
+    
+    .comparison-summary {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .comparison-card {
+        padding: 10px;
+    }
+    
+    .comparison-site-name {
+        font-size: 13px;
+    }
+    
+    .comparison-latency-value {
+        font-size: 20px;
+    }
+    
+    .comparison-progress-text {
+        font-size: 9px;
+    }
+}
+
+/* 空状态 */
+.comparison-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--color-ink);
+    opacity: 0.5;
+}
+
+.comparison-empty-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.comparison-empty-text {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* 加载完成后的显示控制 */
+.comparison-grid.hidden {
+    display: none;
+}
+
+.comparison-skeleton.hidden {
+    display: none;
+}
+
+#comparison-summary.hidden {
+    display: none;
+}
+
+#comparison-summary:not(.hidden) {
+    display: grid;
+}
+
+/* 高亮动画 */
+@keyframes highlight-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(26, 26, 26, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(26, 26, 26, 0);
+    }
+}
+
+.comparison-card.highlighted {
+    animation: highlight-pulse 2s ease-in-out;
+}
+
+/* 筛选标签 */
+.comparison-filter {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.comparison-filter-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 2px solid var(--color-ink);
+    background: transparent;
+    color: var(--color-ink);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.comparison-filter-btn:hover {
+    background: rgba(26, 26, 26, 0.05);
+}
+
+.comparison-filter-btn.active {
+    background: var(--color-ink);
+    color: var(--color-paper);
+}
+
+/* 工具提示 */
+.comparison-tooltip {
+    position: absolute;
+    padding: 8px 12px;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    font-size: 11px;
+    border-radius: 0;
+    pointer-events: none;
+    z-index: 100;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.comparison-card:hover .comparison-tooltip {
+    opacity: 1;
+}
