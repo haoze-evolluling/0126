@@ -118,11 +118,11 @@
                                 </div>
                                 <div class="p-4 space-y-4">
                                     <div class="flex gap-2">
-                                        <button onclick="engine.setSamples(5)" class="sample-btn flex-1 py-3 border-2 border-ink text-sm font-bold hover:bg-ink hover:text-paper transition-colors bg-ink text-paper" data-n="5">5次</button>
-                                        <button onclick="engine.setSamples(10)" class="sample-btn flex-1 py-3 border-2 border-ink text-sm font-bold hover:bg-ink hover:text-paper transition-colors" data-n="10">10次</button>
+                                        <button onclick="engine.setSamples(5)" class="sample-btn flex-1 py-3 border-2 text-sm font-bold transition-colors" style="background-color: #1A1A1A; color: #F5F2E9; border-color: #1A1A1A;" data-n="5">5次</button>
+                                        <button onclick="engine.setSamples(10)" class="sample-btn flex-1 py-3 border-2 text-sm font-bold transition-colors" style="background-color: transparent; color: #1A1A1A; border-color: #1A1A1A;" data-n="10">10次</button>
                                     </div>
 
-                                    <button id="start-btn" onclick="engine.start()" class="w-full py-4 bg-ink text-paper font-bold text-lg tracking-wider hover:bg-ink/90 transition-all flex items-center justify-center gap-3 group border-2 border-ink">
+                                    <button id="start-btn" onclick="engine.start()" class="w-full py-4 font-bold text-lg tracking-wider hover:opacity-90 transition-all flex items-center justify-center gap-3 group border-2" style="background-color: #1A1A1A; color: #F5F2E9; border-color: #1A1A1A;">
                                         <i data-lucide="activity" class="w-5 h-5 group-hover:animate-pulse"></i>
                                         开始诊断
                                     </button>

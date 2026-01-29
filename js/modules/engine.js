@@ -15,9 +15,11 @@ const engine = {
         // Update UI buttons
         document.querySelectorAll('.sample-btn').forEach(btn => {
             if (parseInt(btn.dataset.n) === n) {
-                btn.classList.add('bg-ink', 'text-paper');
+                btn.style.backgroundColor = '#1A1A1A';
+                btn.style.color = '#F5F2E9';
             } else {
-                btn.classList.remove('bg-ink', 'text-paper');
+                btn.style.backgroundColor = 'transparent';
+                btn.style.color = '#1A1A1A';
             }
         });
     },
